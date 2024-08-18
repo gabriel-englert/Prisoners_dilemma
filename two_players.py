@@ -14,7 +14,6 @@ print(payoff_matrix)
 #parâmetros da rede quadrada
 L = 100
 N = L**2
-
 players = random_players(N)
 
 p_c = players.count(0)/N
