@@ -49,7 +49,7 @@ def play_neighbors(player,lattice,payoff_matrix, players): #apenas um jogador jo
         total_payoff += payoff_matrix[players[player],players[j]]
     return total_payoff
 
-def update_strategy_mcs(players, lattice, lattice_payoff,payoff_matrix,k=1):
+def update_strategy_mcs(players, lattice, lattice_payoff,payoff_matrix,k=0.1):
     '''
     sorteia um jogador, e analisa se troca ou não a estratégia também sorteando
     um vizinho e comparando os payoffs, é aceita a troca com uma propapilidade w.
