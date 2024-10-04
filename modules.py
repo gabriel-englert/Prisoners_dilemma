@@ -1,16 +1,18 @@
 import random as rd
 import numpy as np
+from numba import jit
 
+@jit(nopython=True)
 def random_players(N):
-    players = []
+    players = np.zeros(N, dtype=np.int32)  # Criando um array NumPy
     for i in range(N):
-        r = rd.randint(0,1)
-        players.append(r)
+        players[i] = np.random.randint(0, 2) 
     return players
 
+@jit(nopython=True)
 def create_lattice(L):
     N = int(L**2)
-    vizinhanca = np.zeros((N,4))
+    vizinhanca = np.zeros((N, 4), dtype=np.int32) 
     for i in range(N):
         if (i%L == L-1):
             vizinhanca[i][0] = i + 1 - L #direita
@@ -31,24 +33,27 @@ def create_lattice(L):
     vizinhanca = vizinhanca.astype('int')
     return vizinhanca
 
-
+@jit(nopython=True)
 def play_neighbors_lattice(players, lattice, payoff_matrix): #todos os jogadores jogam com os vizinhos
     N = len(players)
-    total_payoff = 0
-    lattice_payoff = []
+    lattice_payoff = np.zeros(N, dtype=np.float64)
     for i in range(N):
+        total_payoff = 0.0
         for j in lattice[i,:]:
             total_payoff += payoff_matrix[players[i],players[j]]
-        lattice_payoff.append(total_payoff)
+        lattice_payoff[i] = total_payoff
         total_payoff = 0
     return lattice_payoff
 
+
+@jit(nopython=True)
 def play_neighbors(player,lattice,payoff_matrix, players): #apenas um jogador joga com os vizinhos, adicionei essa para otimizar a atualização de estratégia
-    total_payoff = 0
+    total_payoff = 0.0
     for j in lattice[player,:]:
         total_payoff += payoff_matrix[players[player],players[j]]
     return total_payoff
 
+@jit(nopython=True)
 def update_strategy_mcs(players, lattice, lattice_payoff,payoff_matrix,k=0.1):
     '''
     sorteia um jogador, e analisa se troca ou não a estratégia também sorteando
@@ -60,16 +65,14 @@ def update_strategy_mcs(players, lattice, lattice_payoff,payoff_matrix,k=0.1):
     N = len(players)
     for i in range(N):
         chosen_player = rd.randint(0,N-1)
-        r2 = rd.randint(0,3)
+        r2 = np.random.randint(0, 4)
         chosen_neighbor = lattice[chosen_player,r2]
         ex = lattice_payoff[chosen_player]
         ey = lattice_payoff[chosen_neighbor]
-        r = rd.random()
+        r = np.random.rand()
         w = 1/(1 + np.exp(-(ey-ex)/k))
         if r<w:
-            #subtrair o valor do payoff anterior dos vizinhos
-            for j in lattice[chosen_player,:]:
-                lattice_payoff[j]
+
             players[chosen_player] = players[chosen_neighbor]
             lattice_payoff[chosen_player] = play_neighbors(chosen_player,lattice,payoff_matrix,players)
             for j in lattice[chosen_player,:]: #loop nos vizinhos do jogador sorteado

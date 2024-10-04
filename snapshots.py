@@ -3,7 +3,7 @@ from modules import *
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 #definindo parâmetros do jogo
-r = 0.021
+r = 0.020
 
 R = 1
 P = 0
@@ -30,7 +30,7 @@ lattice_payoff = play_neighbors_lattice(players, lattice, payoff_matrix)
 snapshots = [np.reshape(np.array(players),[L,L])]
 
 #monte carlo steps
-for i in range(1,400):
+for i in range(1,1000):
     players, lattice_payoff = update_strategy_mcs(players,lattice,lattice_payoff,payoff_matrix)
 
     p_c = players.count(0)/N
@@ -38,18 +38,14 @@ for i in range(1,400):
     p_c_list.append(p_c)
     p_d_list.append(p_d)
     snapshots.append(np.reshape(np.array(players),[L,L]))
-    if i%2 == 0:
-        plt.imshow(snapshots[i], cmap='gray', vmin=0, vmax=1)
+    if i%100 == 0:
+        plt.imshow(snapshots[i], cmap='bwr', vmin=0, vmax=1)
+        if i==0:
+            plt.colorbar()
         plt.pause(0.00001)
-    if i==1:
-        print(players)
+        
 
 #animation
+plt.show()
 
-plt.show()
-'''
-print(p_c_list)
-t_list = [t for t in range(400)]
-plt.plot(t_list,p_c_list)
-plt.show()
-'''
+
